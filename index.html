@@ -1,18 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>삼해 생태 문화 전략</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>한국의 삼해 비교</h1>
-    <div>
-        <button onclick="showInfo('east')">East_Sea</button>
-        <button onclick="showInfo('west')">West_Sea</button>
-        <button onclick="showInfo('south')">South_Sea</button>
-    </div>
-    <div id="info-box"></div>
+    <header>
+       <h1>한국의 삼해 비교</h1>
+        <nav>
+            <a href="east.html">동해</a>
+            <a href="west.html">서해</a>
+            <a href="south.html">남해</a>
+        </nav>
+
+    </header>
+    <main>
+        <section id="info-section">
+            <h2>해역 정보</h2>
+            <div id="info-box">바다를 선택하세요.</div>
+        </section>        
+    </main>
     <script src="script.js"></script>
 </body>
 </html>
