@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>동해 정보</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     details {
       margin-bottom: 1em;
@@ -53,6 +54,13 @@
         <details>
           <summary>동물</summary>
           <p></p>
+        </details>
+      </div>
+      <h2 class="clickable outlined" onclick="toggleContent('info')">통계 정보</h2>
+      <div id="info" style="display: none;">
+        <details>
+          <summary onclick="drawSeaTempChart()">수온</summary>
+          <canvas id="eastTempChart" width="600" height="300"></canvas>
         </details>
       </div>
     </section>
