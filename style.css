@@ -10,10 +10,20 @@ button {
 }
 .clickable {
   cursor: pointer;
-  color: #0066cc;
+  color: #02ffc0;
   font-weight: bold;
 }
 
 .clickable:hover {
   text-decoration: underline;
 }
+.outlined {
+  
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black,
+               -1px 1px 0 black, 1px 1px 0 black;
+  
+}
+.bigger {
+    font-size: 40px;
+}
+
