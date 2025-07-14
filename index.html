@@ -7,16 +7,31 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-       <h1>한국의 삼해 비교</h1>
-        <nav>
-            <a class="bigger" href="east.html">동해</a>
-            <a class="bigger" href="west.html">서해</a>
-            <a class="bigger" href="south.html">남해</a>
-        </nav>
+  <main class="content-area">
+    <section class="main-content">
+      <h1>한국의 삼해 비교</h1>
+      <nav>
+        <a class="bigger" href="east.html">동해</a>
+        <a class="bigger" href="west.html">서해</a>
+        <a class="bigger" href="south.html">남해</a>
+      </nav>
+    </section>
 
-    </header>
     
-    <script src="script.js"></script>
+    <aside class="feedback-section">
+        <h3>질의 창구</h3>
+        <form id="feedback-form">
+            <input type="text" id="user" placeholder="이름" required>
+            <textarea id="comment" placeholder="의견을 입력하세요" required></textarea>
+            <button type="submit">제출</button>
+        </form>
+        <div class="feedback-box">
+            <div id="feedback-list"></div>
+        </div>
+     </aside>
+  </main>
+
+  <script src="script.js"></script>
 </body>
+
 </html>

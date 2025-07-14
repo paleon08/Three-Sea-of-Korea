@@ -11,3 +11,26 @@ function toggleContent(id, element) {
     element.innerText = (isOpen ? "▶ " : "▼ ") + text;
   }
 }
+const form = document.getElementById('feedback-form');
+const list = document.getElementById('feedback-list');
+let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+
+function render() {
+  list.innerHTML = '';
+  feedbacks.forEach(f => {
+    const div = document.createElement('div');
+    div.innerHTML = `<strong>${f.user}</strong>: ${f.text}`;
+    list.appendChild(div);
+  });
+}
+render();
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const user = document.getElementById('user').value;
+  const text = document.getElementById('comment').value;
+  feedbacks.push({ user, text });
+  localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+  form.reset();
+  render();
+});
