@@ -1,9 +1,8 @@
-function showInfo(sea) {
-    const info = {
-        east:'blank',
-        west: 'blank',
-        south: 'blank'
+function toggleContent(id) {
+    const element=document.getElementById(id);
+    if (element.style.display === 'none') {
+        element.style.display='block';
+    } else {
+        element.style.display='none'
     }
-    document.getElementById("info-box").innerText = info[sea];
-
 }
