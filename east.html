@@ -30,7 +30,7 @@
   <main>
     <section id="정보">
     <h2>해양 정보</h2>
-      <h2 class="clickable outlined" onclick="toggleContent('geo')">지리적 특성</h2>
+      <h2 class="clickable outlined" data-target="geo">지리적 특성</h2>
       <div id="geo" style="display: none;">
         <details>
           <summary>지형</summary>
@@ -44,7 +44,7 @@
           <summary>해양</summary>
         </details>
       </div>
-      <h2 class="clickable outlined" onclick="toggleContent('bio')">생태적 특성</h2>
+      <h2 class="clickable outlined" data-target="bio">생태적 특성</h2>
       <div id="bio" style="display:none;">
         <details>
           <summary>식물</summary>
@@ -55,7 +55,7 @@
           <p></p>
         </details>
       </div>
-      <h2 class="clickable outlined" onclick="toggleContent('info')">통계 정보</h2>
+      <h2 class="clickable outlined" data-target="info">통계 정보</h2>
       <div id="info" style="display: none;">
         <details>
           <summary>
@@ -70,7 +70,7 @@
       <a href="e_data.html">전략 제안</a>
     </nav>
   </main>
-  <script src="script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
