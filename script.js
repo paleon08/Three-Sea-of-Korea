@@ -1,127 +1,119 @@
-function toggleContent(id, element) {
-  const target = document.getElementById(id); // 펼칠 대상 찾기
-  const isOpen = target.style.display === "block"; // 현재 펼쳐져 있는지 확인
-
-  // 펼치기/접기
-  target.style.display = isOpen ? "none" : "block";
-
-  // 제목 옆의 아이콘 변경 (▶ ↔ ▼)
-  if (element) {
-    const text = element.innerText.slice(2); // 아이콘 제거한 본문만 남기기
-    element.innerText = (isOpen ? "▶ " : "▼ ") + text;
+class ToggleSection {
+  static toggle(id, element) {
+    const target = document.getElementById(id);
+    const isOpen = target.style.display === "block";
+    target.style.display = isOpen ? "none" : "block";
+    if (element) {
+      const text = element.innerText.slice(2);
+      element.innerText = (isOpen ? "▶ " : "▼ ") + text;
+    }
   }
 }
-const form = document.getElementById('feedback-form');
-const list = document.getElementById('feedback-list');
-let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
 
-function render() {
-  list.innerHTML = '';
-  feedbacks.forEach(f => {
-    const div = document.createElement('div');
-    div.innerHTML = `<strong>${f.user}</strong>: ${f.text}`;
-    list.appendChild(div);
-  });
-}
-render();
+class FeedbackManager {
+  constructor(formId, listId) {
+    this.form = document.getElementById(formId);
+    this.list = document.getElementById(listId);
+    this.feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const user = document.getElementById('user').value;
-  const text = document.getElementById('comment').value;
-  feedbacks.push({ user, text });
-  localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
-  form.reset();
-  render();
-});
-
-
-const today = new Date();
-const yyyy = today.getFullYear();
-const mm = String(today.getMonth() + 1).padStart(2, '0');
-const dd = String(today.getDate()).padStart(2, '0');
-const date = `${yyyy}${mm}${dd}`;
-
-// 3개 바다 실시간 fetch
-Promise.all([
-  fetch(`http://localhost:3000/api/sea-temp?obsCode=TW_0063&date=${date}`), // 동해
-  fetch(`http://localhost:3000/api/sea-temp?obsCode=TW_0076&date=${date}`), // 서해
-  fetch(`http://localhost:3000/api/sea-temp?obsCode=TW_0062&date=${date}`)  // 남해
-])
-  .then(responses => Promise.all(responses.map(r => r.json())))
-  .then(([east, west, south]) => {
-    console.log("동해 수온:", east);
-    console.log("서해 수온:", west);
-    console.log("남해 수온:", south);
-  })
-  .catch(error => {
-    console.error("실시간 데이터 오류:", error);
-  });
-
-async function fetchWithFallback(obsCode, date) { 
-  let response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${date}`);
-  let result = await response.json();
-
-  // 오류가 있으면 어제 날짜로 fallback
-  if (result.result?.error === "invalid date") {
-  
-    const yest = new Date();
-    yest.setDate(yest.getDate() - 1);
-    const yyyy = yest.getFullYear();
-    const mm = String(yest.getMonth() + 1).padStart(2, '0');
-    const dd = String(yest.getDate()).padStart(2, '0');
-    const yestDate = `${yyyy}${mm}${dd}`;
-    response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${yestDate}`);
-    result = await response.json();
+    this.form.addEventListener('submit', this.handleSubmit.bind(this));
+    this.render();
   }
 
-  return result;
+  render() {
+    this.list.innerHTML = '';
+    this.feedbacks.forEach(f => {
+      const div = document.createElement('div');
+      div.innerHTML = `<strong>${f.user}</strong>: ${f.text}`;
+      this.list.appendChild(div);
+    });
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    const user = document.getElementById('user').value;
+    const text = document.getElementById('comment').value;
+    this.feedbacks.push({ user, text });
+    localStorage.setItem('feedbacks', JSON.stringify(this.feedbacks));
+    this.form.reset();
+    this.render();
+  }
 }
 
+class SeaTemperatureChart {
+  constructor() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    this.date = `${yyyy}${mm}${dd}`;
+  }
 
-async function drawSeaTempChart(ob_code) {
-  // Node.js 서버로 요청 (동해 = TW_0063) 
-  const result = await fetchWithFallback(ob_code, date);
-  const data = result.data;
+  async fetchWithFallback(obsCode) {
+    let result = await this.fetchData(obsCode, this.date);
+    if (result.result?.error === "invalid date") {
+      const yest = new Date();
+      yest.setDate(yest.getDate() - 1);
+      const yyyy = yest.getFullYear();
+      const mm = String(yest.getMonth() + 1).padStart(2, '0');
+      const dd = String(yest.getDate()).padStart(2, '0');
+      const fallbackDate = `${yyyy}${mm}${dd}`;
+      result = await this.fetchData(obsCode, fallbackDate);
+    }
+    return result;
+  }
 
-  // record_time과 water_temp만 추출
-  const labels = data.map(d => d.record_time.slice(11, 16)); // "HH:MM"만 표시
-  const temps = data.map(d => parseFloat(d.water_temp));
+  async fetchData(obsCode, date) {
+    const response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${date}`);
+    return await response.json();
+  }
 
-  const minTemp = Math.min(...temps);
-  const maxTemp = Math.max(...temps);
+  async drawChart(obsCode, canvasId) {
+    const result = await this.fetchWithFallback(obsCode);
+    const data = result.data;
+    const labels = data.map(d => d.record_time.slice(11, 16));
+    const temps = data.map(d => parseFloat(d.water_temp));
 
-  const buffer = 2;
+    const min = Math.floor(Math.min(...temps) - 1);
+    const max = Math.ceil(Math.max(...temps) + 1);
 
-  // Chart.js 그래프 생성
-  new Chart(document.getElementById('eastTempChart'), {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: '수온 (℃)',
-        data: temps,
-        borderColor: 'blue',
-        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-        tension: 0.3,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        
-
-        y: {
-        min: Math.floor(minTemp - buffer),
-        max: Math.ceil(maxTemp + buffer),
-        title: { display: true, text: '수온 (℃)' }
-}
-,
-        x: {
-          title: { display: true, text: '시간 (시:분)' }
+    new Chart(document.getElementById(canvasId), {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "수온 (℃)",
+          data: temps,
+          borderColor: "blue",
+          backgroundColor: "rgba(0, 0, 255, 0.1)",
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            min: min,
+            max: max,
+            title: { display: true, text: "수온 (℃)" }
+          },
+          x: {
+            title: { display: true, text: "시간 (시:분)" }
+          }
         }
       }
-    }
-  });
+    });
+  }
 }
+
+// 초기화
+window.addEventListener("DOMContentLoaded", () => {
+  new FeedbackManager('feedback-form', 'feedback-list');
+
+  const chart = new SeaTemperatureChart();
+  const btn = document.getElementById("east-btn");
+  if (btn) {
+    btn.addEventListener("click", () => chart.drawChart("TW_0063", "eastTempChart"));
+  }
+});
