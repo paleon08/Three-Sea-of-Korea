@@ -1,3 +1,6 @@
+const BASE_URL = 'https://three-sea-server.onrender.com';
+
+
 // 날짜 유틸
 class DateUtil {
   static todayStr() {
@@ -23,14 +26,14 @@ class DateUtil {
 class SeaTemperatureChart {
   static async fetchWithFallback(obsCode) {
     const today = DateUtil.todayStr();
-    let response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${today}`);
+    let response = await fetch(`${BASE_URL}/api/sea-temp?obsCode=${obsCode}&date=${today}`);
     let result = await response.json();
 
     if (result.result?.error === "invalid date"||
     result.result?.error === "No search data") {
       console.warn(`${obsCode}: 오늘 데이터 없음, 어제 데이터로 대체합니다.`);
       const yest = DateUtil.yesterdayStr();
-      response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${yest}`);
+      response = await fetch(`${BASE_URL}/api/sea-temp?obsCode=${obsCode}&date=${yest}`);
       result = await response.json();
     }
 
