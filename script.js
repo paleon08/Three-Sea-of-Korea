@@ -26,7 +26,9 @@ class SeaTemperatureChart {
     let response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${today}`);
     let result = await response.json();
 
-    if (result.result?.error === "invalid date") {
+    if (result.result?.error === "invalid date"||
+    result.result?.error === "No search data") {
+      console.warn(`${obsCode}: 오늘 데이터 없음, 어제 데이터로 대체합니다.`);
       const yest = DateUtil.yesterdayStr();
       response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${yest}`);
       result = await response.json();
@@ -36,9 +38,10 @@ class SeaTemperatureChart {
   }
 
   static async drawChart(obsCode, canvasId) {
+    console.log("차트 그리기 실행:", obsCode, canvasId);
     const result = await this.fetchWithFallback(obsCode);
-    const data = result.data;
-    if (!data) return;
+    const data = result.result?.data;
+    if (!data) {console.error("데이터 없음"); return;}
 
     const labels = data.map(d => d.record_time.slice(11, 16));
     const temps = data.map(d => parseFloat(d.water_temp));
@@ -141,21 +144,22 @@ document.addEventListener("DOMContentLoaded", () => {
   ToggleController.bindToggles();
 
   // 수온 summary 클릭 → 그래프 그리기
-  const summary = document.getElementById("east-summary");
-  if (summary) {
-    summary.addEventListener("click", () => {
-      SeaTemperatureChart.drawChart("TW_0063", "eastTempChart");
+  const btn = document.getElementById("east-btn");
+  console.log("버튼 찾음:", btn);
+  if (btn) {
+    btn.addEventListener("click", () => {
+      console.log("버튼 클릭됨");
+      SeaTemperatureChart.drawChart("TW_0080", "eastTempChart");
     });
-  }
+  } else {"east-btn 못 찾음."}
 
   // 초기 fetch로 콘솔 확인
   const date = DateUtil.todayStr();
   Promise.all([
-    fetch(`http://localhost:3000/api/sea-temp?obsCode=TW_0063&date=${date}`), // 동해
-    fetch(`http://localhost:3000/api/sea-temp?obsCode=TW_0076&date=${date}`), // 서해
-    fetch(`http://localhost:3000/api/sea-temp?obsCode=TW_0062&date=${date}`)  // 남해
+    SeaTemperatureChart.fetchWithFallback("TW_0080"),//동해 관측소
+    SeaTemperatureChart.fetchWithFallback("TW_0076"),//서해 관측소
+    SeaTemperatureChart.fetchWithFallback("TW_0062")//남해 관측소
   ])
-    .then(responses => Promise.all(responses.map(r => r.json())))
     .then(([east, west, south]) => {
       console.log("동해 수온:", east);
       console.log("서해 수온:", west);
