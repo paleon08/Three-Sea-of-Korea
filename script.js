@@ -58,23 +58,40 @@ Promise.all([
     console.error("실시간 데이터 오류:", error);
   });
 
-async function drawSeaTempChart() {
-  // 오늘 날짜 자동 생성
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const date = `${yyyy}${mm}${dd}`;
+async function fetchWithFallback(obsCode, date) { 
+  let response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${date}`);
+  let result = await response.json();
 
-  // Node.js 서버로 요청 (동해 = TW_0063)
-  const response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=TW_0063&date=${date}`);
-  const result = await response.json();
+  // 오류가 있으면 어제 날짜로 fallback
+  if (result.result?.error === "invalid date") {
+  
+    const yest = new Date();
+    yest.setDate(yest.getDate() - 1);
+    const yyyy = yest.getFullYear();
+    const mm = String(yest.getMonth() + 1).padStart(2, '0');
+    const dd = String(yest.getDate()).padStart(2, '0');
+    const yestDate = `${yyyy}${mm}${dd}`;
+    response = await fetch(`http://localhost:3000/api/sea-temp?obsCode=${obsCode}&date=${yestDate}`);
+    result = await response.json();
+  }
 
+  return result;
+}
+
+
+async function drawSeaTempChart(ob_code) {
+  // Node.js 서버로 요청 (동해 = TW_0063) 
+  const result = await fetchWithFallback(ob_code, date);
   const data = result.data;
 
   // record_time과 water_temp만 추출
   const labels = data.map(d => d.record_time.slice(11, 16)); // "HH:MM"만 표시
   const temps = data.map(d => parseFloat(d.water_temp));
+
+  const minTemp = Math.min(...temps);
+  const maxTemp = Math.max(...temps);
+
+  const buffer = 2;
 
   // Chart.js 그래프 생성
   new Chart(document.getElementById('eastTempChart'), {
@@ -93,17 +110,18 @@ async function drawSeaTempChart() {
     options: {
       responsive: true,
       scales: {
+        
+
         y: {
-          beginAtZero: false,
-          title: { display: true, text: '수온 (℃)' }
-        },
+        min: Math.floor(minTemp - buffer),
+        max: Math.ceil(maxTemp + buffer),
+        title: { display: true, text: '수온 (℃)' }
+}
+,
         x: {
           title: { display: true, text: '시간 (시:분)' }
         }
       }
-
     }
   });
 }
-
-
