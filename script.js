@@ -138,6 +138,52 @@ class ToggleController {
   }
 }
 
+// 🔧 월별 평균 수온 데이터를 불러와 그래프를 그리는 기능 추가
+class MonthlyAvgChart {
+  static async fetchMonthlyAverage(seaRegion) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/monthly-average?region=${seaRegion}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("월별 평균 수온 불러오기 실패:", error);
+      return null;
+    }
+  }
+
+  static async drawChart(seaRegion, canvasId) {
+    const result = await this.fetchMonthlyAverage(seaRegion);
+    if (!result || !result.averages) return;
+
+    const labels = result.averages.map(entry => `${entry.month}월`);
+    const temps = result.averages.map(entry => entry.avgTemp);
+
+    new Chart(document.getElementById(canvasId), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: `${seaRegion} 월별 평균 수온 (℃)`,
+          data: temps,
+          backgroundColor: 'rgba(255, 99, 132, 0.5)'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: "평균 수온 (℃)" }
+          },
+          x: {
+            title: { display: true, text: "월" }
+          }
+        }
+      }
+    });
+  }
+}
+
 // 초기화
 document.addEventListener("DOMContentLoaded", () => {
   // 피드백 처리 (필요할 때만 실행됨)
@@ -155,6 +201,42 @@ document.addEventListener("DOMContentLoaded", () => {
       SeaTemperatureChart.drawChart("TW_0080", "eastTempChart");
     });
   } else {"east-btn 못 찾음."}
+  const monthlyBtn = document.getElementById("east-monthly-btn");
+  if (monthlyBtn) {
+    monthlyBtn.addEventListener("click", () => {
+      MonthlyAvgChart.drawChart("eastSea", "eastMonthlyChart");
+    });
+  }
+  
+  const wbtn = document.getElementById("west-btn");
+  console.log("버튼 찾음:", wbtn);
+  if (wbtn) {
+    wbtn.addEventListener("click", () => {
+      console.log("버튼 클릭됨");
+      SeaTemperatureChart.drawChart("TW_0076", "westTempChart");
+    });
+  } else {"east-btn 못 찾음."}
+  const monthlywBtn = document.getElementById("west-monthly-btn");
+  if (monthlywBtn) {
+    monthlywBtn.addEventListener("click", () => {
+      MonthlyAvgChart.drawChart("westSea", "westMonthlyChart");
+    });
+  }
+  
+  const sbtn = document.getElementById("south-btn");
+  console.log("버튼 찾음:", sbtn);
+  if (sbtn) {
+    sbtn.addEventListener("click", () => {
+      console.log("버튼 클릭됨");
+      SeaTemperatureChart.drawChart("TW_0062", "southTempChart");
+    });
+  } else {"east-btn 못 찾음."}
+  const monthlysBtn = document.getElementById("south-monthly-btn");
+  if (monthlysBtn) {
+    monthlysBtn.addEventListener("click", () => {
+      MonthlyAvgChart.drawChart("southSea", "southMonthlyChart");
+    });
+  }
 
   // 초기 fetch로 콘솔 확인
   const date = DateUtil.todayStr();

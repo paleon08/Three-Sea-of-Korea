@@ -30,7 +30,7 @@
   <main>
     <section id="정보">
     <h2>해양 정보</h2>
-      <h2 class="clickable outlined" onclick="toggleContent('geo')">지리적 특성</h2>
+      <h2 class="clickable outlined" data-target="geo">지리적 특성</h2>
       <div id="geo" style="display: none;">
         <details>
           <summary>지형</summary>
@@ -44,7 +44,7 @@
           <summary>해양</summary>
         </details>
       </div>
-      <h2 class="clickable outlined" onclick="toggleContent('bio')">생태적 특성</h2>
+      <h2 class="clickable outlined" data-target="bio">생태적 특성</h2>
       <div id="bio" style="display:none;">
         <details>
           <summary>식물</summary>
@@ -55,11 +55,25 @@
           <p></p>
         </details>
       </div>
+      <h2 class="clickable outlined" data-target="info">통계 정보</h2>
+      <div id="info" style="display: none;">
+        <details>
+          <summary>오늘 수온</summary>
+          <button id="west-btn" style="margin-left: 10px;">▶ 그래프 보기</button>          
+          <canvas id="westTempChart" width="600" height="300"></canvas>
+        </details>
+        <details>
+          <summary>월평균 수온</summary>
+          <button id="west-monthly-btn">월별 수온</button>
+          <canvas id="westMonthlyChart"></canvas>
+        </details>
+      </div>
     </section>
     <nav>
       <a href="w_data.html">전략 제안</a>
     </nav>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
