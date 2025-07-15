@@ -1,6 +1,6 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background-color: aqua;
+    background-color: rgb(0, 255, 255);
     padding: 20px;
     margin: 0;
 }
@@ -47,10 +47,22 @@ cursor: pointer;
 }
 .main-content {
   flex: 3;
+  padding: 40px;
+  background-color: rgb(17, 218, 84);
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(13, 199, 137, 0.466);
+  
+}
+.description {
+  flex: 2;
   padding: 20px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  left: 30px;
+  bottom: 30px;
+  width: 500px;
 }
 /* 댓글 전체 영역 */
 .feedback-section {
