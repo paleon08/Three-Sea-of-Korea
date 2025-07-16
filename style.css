@@ -34,7 +34,12 @@ cursor: pointer;
                -1px 1px 0 black, 1px 1px 0 black; 
 }
 .pad {
+  background: linear-gradient(to bottom, #e0f7fa, #ffffff); /* 연한 청록~흰색 그라데이션 */
   padding: 20px;
+  margin-top: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
 }
 .bigger {
     font-size: 40px;
