@@ -29,11 +29,12 @@ cursor: pointer;
 .clickable:hover {
   text-decoration: underline;
 }
-.outlined {
-  
+.outlined {  
   text-shadow: -1px -1px 0 black, 1px -1px 0 black,
-               -1px 1px 0 black, 1px 1px 0 black;
-  
+               -1px 1px 0 black, 1px 1px 0 black; 
+}
+.pad {
+  padding: 20px;
 }
 .bigger {
     font-size: 40px;
